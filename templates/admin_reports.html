@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h1><i class="bi bi-bar-chart"></i> Evaluation Reports</h1>
+        <p class="text-muted">View and export evaluation data</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Category Filter</h5>
+                    <div class="btn-group">
+                        <a href="{{ url_for('admin_reports', category='all') }}" 
+                           class="btn btn-outline-primary {% if category == 'all' %}active{% endif %}">
+                            All Categories
+                        </a>
+                        <a href="{{ url_for('admin_reports', category='robo_race') }}" 
+                           class="btn btn-outline-danger {% if category == 'robo_race' %}active{% endif %}">
+                            Robo Race
+                        </a>
+                        <a href="{{ url_for('admin_reports', category='robo_sumo') }}" 
+                           class="btn btn-outline-info {% if category == 'robo_sumo' %}active{% endif %}">
+                            Robo Sumo
+                        </a>
+                        <a href="{{ url_for('admin_reports', category='working_model') }}" 
+                           class="btn btn-outline-warning {% if category == 'working_model' %}active{% endif %}">
+                            Working Model
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Statistics</h5>
+            </div>
+            <div class="card-body">
+                {% for cat, data in stats.items() %}
+                <div class="mb-3 p-3 rounded" style="background: rgba(0,0,0,0.2);">
+                    <h6 class="d-flex justify-content-between">
+                        <span class="category-badge {{ cat.replace('_', '-') }}">
+                            {{ cat.replace('_', ' ').title() }}
+                        </span>
+                        <span>{{ data.count }}</span>
+                    </h6>
+                    <div class="small">
+                        <div>Avg: <strong>{{ "%.2f"|format(data.avg) }}</strong></div>
+                        <div>Max: <strong>{{ data.max }}</strong></div>
+                        <div>Min: <strong>{{ data.min }}</strong></div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <a href="{{ url_for('export_reports', category=category) }}" 
+                   class="btn btn-success w-100 mt-3">
+                    <i class="bi bi-download"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Evaluation Records</h5>
+                <span class="badge bg-primary">{{ evaluations|length }} records</span>
+            </div>
+            <div class="card-body">
+                {% if evaluations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Staff ID</th>
+                                <th>Category</th>
+                                <th>Score</th>
+                                <th>Comments</th>
+                                <th>Evaluated At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for eval in evaluations %}
+                            <tr>
+                                <td>{{ eval.student_id }}</td>
+                                <td>{{ eval.staff_id }}</td>
+                                <td>
+                                    <span class="category-badge {{ eval.category.replace('_', '-') }}">
+                                        {{ eval.category.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if eval.score/eval.max_score >= 0.8 %}success{% elif eval.score/eval.max_score >= 0.6 %}warning{% else %}danger{% endif %}">
+                                        {{ eval.score }}/{{ eval.max_score }}
+                                    </span>
+                                </td>
+                                <td>{{ eval.comments[:50] }}{% if eval.comments|length > 50 %}...{% endif %}</td>
+                                <td>{{ eval.evaluated_at.strftime('%H:%M %d/%m') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard-x fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No evaluations found</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

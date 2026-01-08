@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h1><i class="bi bi-people"></i> Manage Students</h1>
+        <p class="text-muted">Upload and manage student data</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-upload"></i> Upload Excel</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Excel File (.xlsx)</label>
+                        <input type="file" name="excel_file" class="form-control" accept=".xlsx" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-cloud-upload"></i> Upload & Process
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle"></i> Excel Format:</h6>
+                    <small>
+                        Columns: Student ID, Name, College, Phone, Category (optional)<br>
+                        First row should be headers<br>
+                        Supported categories: robo_race, robo_sumo, working_model
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Students List</h5>
+                <span class="badge bg-primary">{{ students|length }} students</span>
+            </div>
+            <div class="card-body">
+                {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>College</th>
+                                <th>Phone</th>
+                                <th>Category</th>
+                                <th>QR Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td><strong>{{ student.student_id }}</strong></td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.college }}</td>
+                                <td>{{ student.phone }}</td>
+                                <td>
+                                    {% if student.category %}
+                                    <span class="category-badge {{ student.category.replace('_', '-') }}">
+                                        {{ student.category.replace('_', ' ').title() }}
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            onclick="showQR('{{ student.student_id }}')">
+                                        <i class="bi bi-qr-code"></i> View
+                                    </button>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('delete_student', id=student.id) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Delete this student?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-person-x fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No students uploaded yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">QR Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="qrImage" src="" class="img-fluid" alt="QR Code">
+                <p id="qrStudentId" class="mt-2 fw-bold"></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showQR(studentId) {
+    // In a real app, you would fetch the QR code from the server
+    // For now, we'll show a placeholder
+    document.getElementById('qrStudentId').textContent = 'ID: ' + studentId;
+    
+    // Generate QR client-side (simple version)
+    const qr = new QRious({
+        element: document.getElementById('qrImage'),
+        value: studentId,
+        size: 200
+    });
+    
+    new bootstrap.Modal(document.getElementById('qrModal')).show();
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+{% endblock %}

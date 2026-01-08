@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-6 col-lg-4">
+        <div class="card p-4">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary">ROBOTICA 2026</h2>
+                <p class="text-muted">Simplified Evaluation System</p>
+            </div>
+            
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" required 
+                           placeholder="Enter email">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required 
+                           placeholder="Enter password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    Login
+                </button>
+                
+                <!-- <div class="text-center">
+                    <small class="text-muted">
+                        Admin: admin@robotica.com / admin123
+                    </small>
+                </div> -->
+            </form>
+            
+            <div class="mt-4 text-center">
+                <h5 class="mb-3">3 Categories</h5>
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="category-badge robo-race">Robo Race</span>
+                    <span class="category-badge robo-sumo">Robo Sumo</span>
+                    <span class="category-badge working-model">Working Model</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

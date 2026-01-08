@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-primary">Admin Dashboard</h1>
+        <p class="text-muted">Welcome, {{ session.email }}</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card text-center p-4">
+            <h2 class="display-6 text-primary">{{ total_students }}</h2>
+            <p class="text-muted">Total Students</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center p-4">
+            <h2 class="display-6 text-primary">{{ total_staff }}</h2>
+            <p class="text-muted">Staff Members</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center p-4">
+            <h2 class="display-6 text-primary">{{ total_evaluations }}</h2>
+            <p class="text-muted">Evaluations Done</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Category Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Students</th>
+                                <th>Staff</th>
+                                <th>Evaluations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat, counts in category_counts.items() %}
+                            <tr>
+                                <td>
+                                    <span class="category-badge {{ cat.replace('_', '-') }}">
+                                        {{ cat.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>{{ counts.students }}</td>
+                                <td>{{ counts.staff }}</td>
+                                <td>{{ counts.evaluations }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('admin_staff') }}" class="btn btn-primary w-100 mb-2">
+                    Create Staff
+                </a>
+                <a href="{{ url_for('admin_students') }}" class="btn btn-success w-100 mb-2">
+                    Upload Students
+                </a>
+                <a href="{{ url_for('admin_reports') }}" class="btn btn-info w-100">
+                    View Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

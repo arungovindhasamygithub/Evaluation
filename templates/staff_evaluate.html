@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %}Evaluate Student{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-primary">Evaluate Student</h1>
+        <p class="text-muted">Category: {{ category.replace('_', ' ').title() }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Student Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Enter Student ID</label>
+                        <div class="input-group">
+                            <input type="text" id="studentId" class="form-control" 
+                                   placeholder="Scan or type student ID">
+                            <button class="btn btn-primary" type="button" 
+                                    onclick="fetchStudent()">
+                                Fetch
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="{{ url_for('scanner') }}" class="btn btn-success">
+                            Open Web Scanner
+                        </a>
+                    </div>
+                </div>
+                
+                <div id="wrongCategoryAlert" class="alert alert-danger" style="display: none;">
+                    <h5>Category Mismatch!</h5>
+                    <p id="wrongCategoryText"></p>
+                </div>
+                
+                <div id="alreadyEvaluatedAlert" class="alert alert-warning" style="display: none;">
+                    <h5>Already Evaluated!</h5>
+                    <p>This student has already been evaluated. Re-evaluation is not allowed.</p>
+                </div>
+                
+                <div id="studentInfo" class="alert alert-info" style="display: none;">
+                    <h5><span id="studentName"></span></h5>
+                    <p class="mb-1">College: <span id="studentCollege"></span></p>
+                    <p class="mb-0">Phone: <span id="studentPhone"></span></p>
+                </div>
+                
+                <div id="evaluationForm" style="display: none;">
+                    <hr>
+                    <h5 class="mb-3">Evaluation Criteria (Rate 1-10)</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Design & Innovation</label>
+                            <input type="range" class="form-range" min="1" max="10" step="0.5" 
+                                   value="5" oninput="updateValue('design', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small>1 - Poor</small>
+                                <span id="designValue" class="fw-bold">5.0</span>
+                                <small>10 - Excellent</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Functionality</label>
+                            <input type="range" class="form-range" min="1" max="10" step="0.5" 
+                                   value="5" oninput="updateValue('functionality', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small>1 - Poor</small>
+                                <span id="functionalityValue" class="fw-bold">5.0</span>
+                                <small>10 - Excellent</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Performance</label>
+                            <input type="range" class="form-range" min="1" max="10" step="0.5" 
+                                   value="5" oninput="updateValue('performance', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small>1 - Poor</small>
+                                <span id="performanceValue" class="fw-bold">5.0</span>
+                                <small>10 - Excellent</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Presentation</label>
+                            <input type="range" class="form-range" min="1" max="10" step="0.5" 
+                                   value="5" oninput="updateValue('presentation', this.value)">
+                            <div class="d-flex justify-content-between">
+                                <small>1 - Poor</small>
+                                <span id="presentationValue" class="fw-bold">5.0</span>
+                                <small>10 - Excellent</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Additional Comments</label>
+                        <textarea name="comments" class="form-control" rows="3" 
+                                  placeholder="Any additional feedback..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <h6>Total Score: <span id="totalScore">20.0</span>/40.0</h6>
+                        <small id="scoreFeedback">Good work!</small>
+                    </div>
+                    
+                    <form method="POST" id="submitForm">
+                        <input type="hidden" name="student_id" id="submitStudentId">
+                        <input type="hidden" name="criteria_data" id="criteriaData">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Submit Evaluation
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Instructions</h5>
+            </div>
+            <div class="card-body">
+                <h6>Two Input Methods:</h6>
+                <ol class="small">
+                    <li><strong>Manual:</strong> Type Student ID → Click Fetch</li>
+                    <li><strong>Scanner:</strong> Use web camera → Scan barcode</li>
+                </ol>
+                
+                <h6 class="mt-3">Important Rules:</h6>
+                <ul class="small">
+                    <li>You can only evaluate students in your assigned category</li>
+                    <li>Each student can only be evaluated once</li>
+                    <li>Re-evaluation is not allowed</li>
+                    <li>Rate each criteria from 1-10</li>
+                </ul>
+                
+                <div class="alert alert-danger mt-3">
+                    <strong>Warning:</strong> You can only evaluate each student once!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let criteria = {
+    design: 5,
+    functionality: 5,
+    performance: 5,
+    presentation: 5
+};
+
+function updateValue(criteriaName, value) {
+    criteria[criteriaName] = parseFloat(value);
+    document.getElementById(criteriaName + 'Value').textContent = value;
+    calculateTotal();
+}
+
+function calculateTotal() {
+    let total = Object.values(criteria).reduce((a, b) => a + b, 0);
+    document.getElementById('totalScore').textContent = total.toFixed(1);
+    
+    let feedback = "";
+    if (total >= 35) feedback = "Excellent!";
+    else if (total >= 28) feedback = "Very Good!";
+    else if (total >= 20) feedback = "Good";
+    else if (total >= 15) feedback = "Needs Improvement";
+    else feedback = "Poor";
+    
+    document.getElementById('scoreFeedback').textContent = feedback;
+    
+    // Update hidden field
+    document.getElementById('criteriaData').value = JSON.stringify(criteria);
+}
+
+function fetchStudent() {
+    const studentId = document.getElementById('studentId').value;
+    if (!studentId) {
+        alert('Please enter Student ID');
+        return;
+    }
+    
+    // Hide all alerts
+    document.getElementById('wrongCategoryAlert').style.display = 'none';
+    document.getElementById('alreadyEvaluatedAlert').style.display = 'none';
+    document.getElementById('studentInfo').style.display = 'none';
+    document.getElementById('evaluationForm').style.display = 'none';
+    
+    fetch(`/get_student/${studentId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                if (data.wrong_category) {
+                    // Show wrong category alert
+                    document.getElementById('wrongCategoryText').textContent = 
+                        `This student belongs to ${data.student_category} category, but you are assigned to ${data.staff_category} category.`;
+                    document.getElementById('wrongCategoryAlert').style.display = 'block';
+                } else if (data.already_evaluated) {
+                    // Show already evaluated alert
+                    document.getElementById('alreadyEvaluatedAlert').style.display = 'block';
+                } else {
+                    // Show student info and evaluation form
+                    document.getElementById('studentName').textContent = data.name;
+                    document.getElementById('studentCollege').textContent = data.college;
+                    document.getElementById('studentPhone').textContent = data.phone;
+                    document.getElementById('submitStudentId').value = studentId;
+                    
+                    document.getElementById('studentInfo').style.display = 'block';
+                    document.getElementById('evaluationForm').style.display = 'block';
+                    
+                    // Initialize total calculation
+                    calculateTotal();
+                }
+            } else {
+                alert('Student not found!');
+            }
+        })
+        .catch(error => {
+            alert('Error fetching student data');
+        });
+}
+
+// Auto-fill from URL parameters
+window.addEventListener('DOMContentLoaded', (event) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scannedId = urlParams.get('student_id');
+    if (scannedId) {
+        document.getElementById('studentId').value = scannedId;
+        fetchStudent();
+    }
+});
+</script>
+{% endblock %}

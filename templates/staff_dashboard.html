@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>
+            <i class="bi bi-person-workspace"></i> 
+            {{ category.replace('_', ' ').title() }} Dashboard
+        </h1>
+        <p class="text-muted">Welcome, {{ session.email }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('staff_evaluate') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Evaluation
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card text-center p-3">
+            <h2 class="display-6">{{ students_in_category }}</h2>
+            <p class="text-muted">Students in Category</p>
+            <i class="bi bi-people fs-1 text-primary"></i>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center p-3">
+            <h2 class="display-6">{{ total_evaluated }}</h2>
+            <p class="text-muted">Your Evaluations</p>
+            <i class="bi bi-check-circle fs-1 text-success"></i>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center p-3">
+            <h2 class="display-6">{{ students_in_category - total_evaluated }}</h2>
+            <p class="text-muted">Pending</p>
+            <i class="bi bi-clock fs-1 text-warning"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-check"></i> Your Recent Evaluations</h5>
+                <a href="{{ url_for('scanner') }}" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-camera"></i> Open Scanner
+                </a>
+            </div>
+            <div class="card-body">
+                {% if evaluations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Score</th>
+                                <th>Comments</th>
+                                <th>Evaluated At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for eval in evaluations[:10] %}
+                            <tr>
+                                <td>{{ eval.student_id }}</td>
+                                <td>
+                                    <span class="badge bg-{% if eval.score/eval.max_score >= 0.8 %}success{% elif eval.score/eval.max_score >= 0.6 %}warning{% else %}danger{% endif %}">
+                                        {{ eval.score }}/{{ eval.max_score }}
+                                    </span>
+                                </td>
+                                <td>{{ eval.comments[:50] }}{% if eval.comments|length > 50 %}...{% endif %}</td>
+                                <td>{{ eval.evaluated_at.strftime('%H:%M %d/%m') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard-check fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No evaluations yet. Start evaluating!</p>
+                    <a href="{{ url_for('staff_evaluate') }}" class="btn btn-primary mt-2">
+                        <i class="bi bi-play-circle"></i> Start Evaluation
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning-charge"></i> Quick Start</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('staff_evaluate') }}" class="btn btn-primary">
+                        <i class="bi bi-keyboard"></i> Manual Entry
+                    </a>
+                    <a href="{{ url_for('scanner') }}" class="btn btn-success">
+                        <i class="bi bi-camera"></i> Web Camera Scanner
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Evaluation Criteria</h5>
+            </div>
+            <div class="card-body">
+                <p>Rate each criteria from 1-10:</p>
+                <ul class="small">
+                    <li>Design & Innovation</li>
+                    <li>Functionality</li>
+                    <li>Performance</li>
+                    <li>Presentation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
